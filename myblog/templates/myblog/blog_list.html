@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <title>My Blog</title>
+    
+</head>
+<body>
+ <nav class="navbar navbar-expand-lg bg-body-tertiary bg -primary" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'index' %}">My Blog</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'blog_list' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'blog_list' %}">Blogs</a>
+        </li>
+        <li class="nav-item dropdown">
+        
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           Create a blog
+          </a>
+          <ul class="dropdown-menu">
+           
+            <li><a class="dropdown-item" href="{% url 'create_blog' %}">Write a blog</a></li>
+          </ul>
+        </li>
+        
+      </ul>
+      <form class="d-flex" role="search" action="{% url 'search_blogs' %}" method="get">
+        {% csrf_token %}    
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q"/>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+      <form action="{% url 'logout' %}" method="post" class="d-flex ms-2">
+        {% csrf_token %}
+
+        <button class="btn btn-outline-primary" type="submit">Logout</button>
+      </form>
+    </div>
+  </div>
+ </nav>
+
+ 
+    {% block content %}
+     <div class="container mt-5">
+        <h2>My Blogs</h2>
+        {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content|truncatewords:20 }}</p>
+                    <a href="{% url 'blog_detail' post.id %}" class="btn btn-primary">Read More</a>
+                    {% if post.user == request.user %}
+                    
+                    <a href="{% url 'edit_blog' post.id %}" class="btn btn-secondary">Edit</a>
+                    <form action="{% url 'delete_blog' post.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <small>by {{ post.user.username }}</small>
+                <small>{{ post.created_at }} </small>
+            </div>
+        {% empty %}
+            <p>No blog posts available.</p>
+        {% endfor %}
+     </div>
+    {% endblock %}
+
+
+
+   
+</body>
+</html>
